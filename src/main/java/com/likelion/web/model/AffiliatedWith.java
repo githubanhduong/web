@@ -9,8 +9,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import lombok.Data;
 
 @Entity
+@Data
 public class AffiliatedWith implements Serializable {
 
     @EmbeddedId

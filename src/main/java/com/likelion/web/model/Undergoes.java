@@ -22,9 +22,13 @@ public class Undergoes {
     private Integer patient;
     private Integer procedure;
     private Integer stay;
-    private LocalDateTime dateUndergoes;
+    private LocalDateTime date;
     
     @ManyToOne
     @JoinColumn(name = "physician")
     private Physician physician;
+
+    @ManyToOne
+    @JoinColumn(name = "assistingnurse")
+    private Nurse assistingnurse;
 }

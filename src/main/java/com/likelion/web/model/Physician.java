@@ -1,14 +1,22 @@
 package com.likelion.web.model;
 
+import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.likelion.web.config.PhysicianSerializerConfig;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import lombok.Data;
 
 @Entity
+@Data
+@JsonSerialize(using = PhysicianSerializerConfig.class)
 public class Physician {
 
     @Id
@@ -19,8 +27,8 @@ public class Physician {
     private String position;
     private Integer ssn;
 
-    @OneToMany(mappedBy = "head")
-    private Set<Department> departments;
+    @OneToMany(mappedBy = "head", fetch = FetchType.LAZY)
+    private List<Department> departments;
 
     @OneToMany(mappedBy = "physician")
     private Set<AffiliatedWith> affiliatedWith;
@@ -41,4 +49,3 @@ public class Physician {
     private Set<Appointment> appointments;
 
 }
-
