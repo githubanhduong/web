@@ -8,31 +8,49 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.likelion.web.model.User;
 
 import lombok.Data;
+import reactor.core.publisher.Mono;
 
 @Data
 public class UserDetailImpl implements UserDetails {
-    private User user;
+    private Mono<UserDetails> user;
 
-    public UserDetailImpl(User user) {
+    public UserDetailImpl(Mono<UserDetails> user) {
         this.user = user;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuthorities'");
+      return this.user.block().getAuthorities();
     }
-
+  
+    @Override
+    public boolean isAccountNonExpired() {
+      return this.user.block().isAccountNonExpired();
+    }
+  
+    @Override
+    public boolean isAccountNonLocked() {
+      return this.user.block().isAccountNonLocked();
+    }
+  
+    @Override
+    public boolean isCredentialsNonExpired() {
+      return this.user.block().isCredentialsNonExpired();
+    }
+  
+    @Override
+    public boolean isEnabled() {
+      return this.user.block().isEnabled();
+    }
+  
     @Override
     public String getPassword() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPassword'");
+      return this.user.block().getPassword();
     }
-
+  
     @Override
     public String getUsername() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUsername'");
+      return this.user.block().getUsername();
     }
-
+  
 }

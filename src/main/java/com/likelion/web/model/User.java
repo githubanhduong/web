@@ -1,5 +1,11 @@
 package com.likelion.web.model;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +15,7 @@ import lombok.Data;
 
 @Entity(name = "\"USER\"")
 @Data
-public class User {
+public class User implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +27,10 @@ public class User {
     private String password;
 
     private String role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // TODO Auto-generated method stub
+        return new HashSet<GrantedAuthority>();
+    }
 }
