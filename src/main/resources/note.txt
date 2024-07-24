@@ -8,5 +8,6 @@ Get: localhost:8090/hospital           --------> get list doctor
 
 
 ---------Notify---------
-Re-setup securityConfig
- 
+setup database though test
+reactjs
+jenkin cicd

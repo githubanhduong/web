@@ -78,9 +78,9 @@ INSERT INTO Physician(employeeid, name, position, ssn) VALUES(7,'John Wen','Surg
 INSERT INTO Physician(employeeid, name, position, ssn) VALUES(8,'Keith Dudemeister','MD Resident',888888888);
 INSERT INTO Physician(employeeid, name, position, ssn) VALUES(9,'Molly Clock','Attending Psychiatrist',999999999);
 
-INSERT INTO Department(departmentid, name, head) VALUES(1,'General Medicine',4);
-INSERT INTO Department(departmentid, name, head) VALUES(2,'Surgery',7);
-INSERT INTO Department(departmentid, name, head) VALUES(3,'Psychiatry',9);
+INSERT INTO Department(departmentid, name, physician_id) VALUES(1,'General Medicine',4);
+INSERT INTO Department(departmentid, name, physician_id) VALUES(2,'Surgery',7);
+INSERT INTO Department(departmentid, name, physician_id) VALUES(3,'Psychiatry',9);
 
 INSERT INTO Affiliated_With(physician, department, primaryaffiliation) VALUES(2,1,1);
 INSERT INTO Affiliated_With(physician, department, primaryaffiliation) VALUES(1,1,1);

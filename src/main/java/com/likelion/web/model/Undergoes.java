@@ -22,7 +22,7 @@ public class Undergoes {
     private Integer patient;
     private Integer procedure;
     private Integer stay;
-    private LocalDateTime date;
+    private LocalDateTime dateundergoes;
     
     @ManyToOne
     @JoinColumn(name = "physician")

@@ -52,9 +52,7 @@ public class SecurityConfig {
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/*.html/**").permitAll()
-                        .pathMatchers("/*.svg/**").permitAll()
-                        .pathMatchers("/assets/**").permitAll()
+                        .pathMatchers("/static/**").permitAll()
                         .pathMatchers("/api/**").hasAnyRole("USER", "ADMIN")
                         .anyExchange().authenticated())
                 .httpBasic(withDefaults())

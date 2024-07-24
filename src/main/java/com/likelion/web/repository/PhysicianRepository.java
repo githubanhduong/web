@@ -1,7 +1,5 @@
 package com.likelion.web.repository;
 
-import java.util.Iterator;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.likelion.web.model.Physician;

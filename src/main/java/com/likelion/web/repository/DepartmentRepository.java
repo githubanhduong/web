@@ -9,5 +9,5 @@ import com.likelion.web.model.Physician;
 
 
 public interface DepartmentRepository extends JpaRepository<Department, Integer> {
-    List<Department> findAllByHead(Physician head);
+    List<Department> findAllByPhysicianId(Physician head);
 }

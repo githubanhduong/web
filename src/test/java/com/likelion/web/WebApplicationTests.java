@@ -4,8 +4,10 @@ import java.lang.reflect.Array;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
+@TestPropertySource(locations="classpath:application-test.properties")
 class WebApplicationTests {
 	private static final int MAX_NUMBER = 20;
 	private static Object lock = new Object();
@@ -13,9 +15,9 @@ class WebApplicationTests {
 
 	@Test
 	void contextLoads() {
-		ListNode listNode0 = new ListNode(0, new ListNode(1, 
-		new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5, null))))));
-		System.err.println(middleNode(listNode0, listNode0).val);
+		// ListNode listNode0 = new ListNode(0, new ListNode(1, 
+		// new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5, null))))));
+		// System.err.println(middleNode(listNode0, listNode0).val);
 	}
 
 	public ListNode middleNode(ListNode head, ListNode node) {

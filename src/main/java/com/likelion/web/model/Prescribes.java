@@ -33,7 +33,7 @@ public class Prescribes implements Serializable {
     @JoinColumn(name = "medication")
     private Medication medication;
 
-    private LocalDateTime date;
+    private LocalDateTime dateprescribed; // invalid identifier oracleDB
     private Integer appointment;
     private String dose;
 

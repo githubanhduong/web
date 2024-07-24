@@ -6,17 +6,24 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.likelion.web.config.PhysicianSerializerConfig;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @JsonSerialize(using = PhysicianSerializerConfig.class)
+@Builder(setterPrefix = "with")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Physician {
 
     @Id
@@ -27,7 +34,7 @@ public class Physician {
     private String position;
     private Integer ssn;
 
-    @OneToMany(mappedBy = "head", fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade =  CascadeType.ALL)
     private List<Department> departments;
 
     @OneToMany(mappedBy = "physician")
