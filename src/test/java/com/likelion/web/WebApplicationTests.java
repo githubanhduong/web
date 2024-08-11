@@ -1,14 +1,36 @@
 package com.likelion.web;
 
 import java.lang.reflect.Array;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Example;
 import org.springframework.test.context.TestPropertySource;
+
+import com.likelion.web.model.Department;
+import com.likelion.web.model.Physician;
+import com.likelion.web.model.Procedure;
+import com.likelion.web.repository.DepartmentRepository;
+import com.likelion.web.repository.ProcedureRepository;
+import com.likelion.web.service.HospitalService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @TestPropertySource(locations="classpath:application-test.properties")
+@Slf4j
 class WebApplicationTests {
+	@Autowired
+	HospitalService hospitalService;
+
+	@Autowired
+	DepartmentRepository departmentRepository;
+
+	@Autowired
+	ProcedureRepository procedureRepository;
+
 	private static final int MAX_NUMBER = 20;
 	private static Object lock = new Object();
 	private static boolean isEvenTurn = true;
@@ -19,6 +41,20 @@ class WebApplicationTests {
 		// new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5, null))))));
 		// System.err.println(middleNode(listNode0, listNode0).val);
 	}
+
+	@Test
+	void testJPA() {
+		System.err.println("\n" + "Start" + "\n");
+
+		// log.info(departmentRepository.findAllById(List.of(1, 2, 3)).toString());
+		// System.err.println(departmentRepository.findOne(Example.of(new Department())).toString());
+		procedureRepository.findAll().stream().forEach(System.err::println);
+
+		System.err.println("\n" + "End" + "\n");
+	}
+
+
+
 
 	public ListNode middleNode(ListNode head, ListNode node) {
 		int count = 0;

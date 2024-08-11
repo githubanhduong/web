@@ -34,7 +34,7 @@ public class Physician {
     private String position;
     private Integer ssn;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade =  CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade =  CascadeType.ALL, orphanRemoval=true)
     private List<Department> departments;
 
     @OneToMany(mappedBy = "physician")

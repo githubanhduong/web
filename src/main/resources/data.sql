@@ -122,9 +122,9 @@ INSERT INTO Medication(code, name, brand, description) VALUES(3,'Awakin','Bar La
 INSERT INTO Medication(code, name, brand, description) VALUES(4,'Crescavitin','Baz Industries','N/A');
 INSERT INTO Medication(code, name, brand, description) VALUES(5,'Melioraurin','Snafu Pharmaceuticals','N/A');
 
-INSERT INTO Prescribes(physician, patient, medication, date, appointment, dose) VALUES(1,1,1,'2008-04-24 10:47:30',13216584,'5');
-INSERT INTO Prescribes(physician, patient, medication, date, appointment, dose) VALUES(9,2,2,'2008-04-27 10:53',86213939,'10');
-INSERT INTO Prescribes(physician, patient, medication, date, appointment, dose) VALUES(9,3,2,'2008-04-30 16:53',NULL,'5');
+INSERT INTO Prescribes(physician, patient, medication, dateprescribed, appointment, dose) VALUES(1,1,1,'2008-04-24 10:47:30',13216584,'5');
+INSERT INTO Prescribes(physician, patient, medication, dateprescribed, appointment, dose) VALUES(9,2,2,'2008-04-27 10:53',86213939,'10');
+INSERT INTO Prescribes(physician, patient, medication, dateprescribed, appointment, dose) VALUES(9,3,2,'2008-04-30 16:53',NULL,'5');
 
 INSERT INTO Block(blockfloor, blockcode) VALUES(1,1);
 INSERT INTO Block(blockfloor, blockcode) VALUES(1,2);
@@ -187,12 +187,12 @@ INSERT INTO Stay(stayid, patient, room, start_time, end_time) VALUES(3215,1,111,
 INSERT INTO Stay(stayid, patient, room, start_time, end_time) VALUES(3216,2,123,'2008-05-03','2008-05-14');
 INSERT INTO Stay(stayid, patient, room, start_time, end_time) VALUES(3217,3,112,'2008-05-02','2008-05-03');
 
-INSERT INTO Undergoes(patient, procedure, stay, date, physician, assistingnurse) VALUES(1,6,3215,'2008-05-02',3,101);
-INSERT INTO Undergoes(patient, procedure, stay, date, physician, assistingnurse) VALUES(1,2,3215,'2008-05-03',7,101);
-INSERT INTO Undergoes(patient, procedure, stay, date, physician, assistingnurse) VALUES(2,1,3217,'2008-05-07',3,102);
-INSERT INTO Undergoes(patient, procedure, stay, date, physician, assistingnurse) VALUES(2,5,3217,'2008-05-09',6,NULL);
-INSERT INTO Undergoes(patient, procedure, stay, date, physician, assistingnurse) VALUES(1,7,3217,'2008-05-10',7,101);
-INSERT INTO Undergoes(patient, procedure, stay, date, physician, assistingnurse) VALUES(2,4,3217,'2008-05-13',3,103);
+INSERT INTO Undergoes(patient, procedure, stay, dateundergoes, physician, assistingnurse) VALUES(1,6,3215,'2008-05-02',3,101);
+INSERT INTO Undergoes(patient, procedure, stay, dateundergoes, physician, assistingnurse) VALUES(1,2,3215,'2008-05-03',7,101);
+INSERT INTO Undergoes(patient, procedure, stay, dateundergoes, physician, assistingnurse) VALUES(2,1,3217,'2008-05-07',3,102);
+INSERT INTO Undergoes(patient, procedure, stay, dateundergoes, physician, assistingnurse) VALUES(2,5,3217,'2008-05-09',6,NULL);
+INSERT INTO Undergoes(patient, procedure, stay, dateundergoes, physician, assistingnurse) VALUES(1,7,3217,'2008-05-10',7,101);
+INSERT INTO Undergoes(patient, procedure, stay, dateundergoes, physician, assistingnurse) VALUES(2,4,3217,'2008-05-13',3,103);
 
 INSERT INTO Trained_In(physician, treatment, certificationdate, certificationexpires) VALUES(3,1,'2008-01-01','2008-12-31');
 INSERT INTO Trained_In(physician, treatment, certificationdate, certificationexpires) VALUES(3,2,'2008-01-01','2008-12-31');

@@ -3,10 +3,10 @@ package com.likelion.web;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+// import org.apache.pdfbox.pdmodel.PDDocument;
+// import org.apache.pdfbox.pdmodel.PDPage;
+// import org.apache.pdfbox.pdmodel.PDPageContentStream;
+// import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
