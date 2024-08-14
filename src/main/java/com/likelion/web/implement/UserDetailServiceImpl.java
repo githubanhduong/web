@@ -10,7 +10,7 @@ import com.likelion.web.repository.UserRepository;
 
 import reactor.core.publisher.Mono;
 
-@Service
+@Component
 public class UserDetailServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;

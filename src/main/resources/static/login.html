@@ -5,7 +5,8 @@
     <title>Login 10</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'nonce-randomValue' https://preview.colorlib.com;">
+    <meta http-equiv="Content-Security-Policy"
+        content="script-src 'self' 'nonce-randomValue' https://preview.colorlib.com;">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/style.css">
@@ -28,8 +29,8 @@
                                 <input name="username" type="text" class="form-control" placeholder="Username" required>
                             </div>
                             <div class="form-group">
-                                <input name="password" id="password-field" type="password" class="form-control" placeholder="Password" autocomplete="on"
-                                    required>
+                                <input name="password" id="password-field" type="password" class="form-control"
+                                    placeholder="Password" autocomplete="on" required>
                                 <span toggle="#password-field"
                                     class="fa fa-fw fa-eye field-icon toggle-password"></span>
                             </div>
@@ -88,10 +89,23 @@
                         },
                         body: JSON.stringify(requestData)
                     })
-                        .then(response => response.json()) // Assuming the server responds with JSON
-                        .then(data => {
-                            console.log('Success:', data);
-                            // Handle successful response here (e.g., redirect to another page, show a success message, etc.)
+                        .then(response => {
+                        //     console.log('Response status:', response.status);
+                        //     console.log('Response headers:', response.headers);
+                        //     return response.text();  // Change this to text() instead of json()
+                        // })
+                        // .then(text => {
+                        //     console.log('Raw response:', text);
+                        //     try {
+                        //         const data = JSON.parse(text);
+                        //         if (data.redirectUrl) {
+                                    window.location.href = "http://localhost:8090/hospital";
+                            //     } else {
+                            //         console.error('No redirect URL found in response');
+                            //     }
+                            // } catch (error) {
+                            //     console.error('Error parsing JSON:', error);
+                            // }
                         })
                         .catch(error => {
                             console.error('Error:', error);

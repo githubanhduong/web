@@ -20,7 +20,9 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 
 import com.likelion.web.custom.CaptureRedirectUrlFilter;
@@ -79,7 +81,7 @@ public class SecurityConfig {
                         //     response.getHeaders().setLocation(URI.create("/login/success"));
                         //     return Mono.empty();
                         // })
-                        .authenticationSuccessHandler(customAuthenticationSuccessHandler)
+                        .authenticationSuccessHandler(authenticationSuccessHandler())
                         .authenticationFailureHandler((webFilterExchange, exception) -> {
                             ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
                             response.setStatusCode(HttpStatus.FOUND);
@@ -136,4 +138,16 @@ public class SecurityConfig {
     WebFilter captureRedirectUrlFilter() {
         return new CaptureRedirectUrlFilter();
     }
+
+    @Bean
+    ServerAuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (webFilterExchange, authentication) -> {
+            ServerWebExchange exchange = webFilterExchange.getExchange();
+            return Mono.fromRunnable(() -> {
+                exchange.getResponse().setStatusCode(HttpStatus.FOUND);
+                exchange.getResponse().getHeaders().setLocation(URI.create("/home"));
+            });
+        };
+    }
+
 }
