@@ -1,5 +1,6 @@
 package com.likelion.web.custom;
 
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -10,10 +11,15 @@ public class CaptureRedirectUrlFilter implements WebFilter {
     @SuppressWarnings("null")
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        // Check if the request needs authentication
-        if (needsAuthentication(exchange)) {
-            // Store the original URL before redirecting to login
-            exchange.getAttributes().put("redirectUrl", exchange.getRequest().getURI().toString());
+        ServerHttpRequest request = exchange.getRequest();
+        String path = request.getURI().getPath();
+        
+        // Don't store login page URL
+        if (!path.startsWith("/login")) {
+            exchange.getSession().map(session -> {
+                session.getAttributes().put("ORIGINAL_URL", path);
+                return session;
+            }).subscribe();
         }
 
         return chain.filter(exchange);
