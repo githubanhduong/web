@@ -12,21 +12,25 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 @Entity(name = "\"USER\"")
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @Data
 public class User implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    Integer id;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    String username;
 
-    private String password;
+    String password;
 
-    private String role;
+    String role;
+
+    String email;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

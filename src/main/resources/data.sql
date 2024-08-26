@@ -66,7 +66,7 @@
 
 -- -- Insert records into undergoes table
 -- INSERT INTO undergoes (patient, procedure, stay, date, physician, assistingnurse)
-INSERT INTO "user" (username, password, role) VALUES ('admin', '$2a$11$ke5eM45l.c2CcH1pAy.DVOhS9aKqVxtIbsySMVqsFbY/naBC.OtbS', 'ADMIN');
+INSERT INTO "user" (username, password, role, email) VALUES ('admin', '$2a$11$ke5eM45l.c2CcH1pAy.DVOhS9aKqVxtIbsySMVqsFbY/naBC.OtbS', 'ADMIN', 'facebookanhduong@gmail.com');
 
 INSERT INTO Physician(employeeid, name, position, ssn) VALUES(1,'John Dorian','Staff Internist',111111111);
 INSERT INTO Physician(employeeid, name, position, ssn) VALUES(2,'Elliot Reid','Attending Physician',222222222);
