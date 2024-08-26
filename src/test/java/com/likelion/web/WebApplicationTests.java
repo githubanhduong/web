@@ -53,7 +53,10 @@ class WebApplicationTests {
 		System.err.println("\n" + "End" + "\n");
 	}
 
-
+	@Test
+	void learnJava() {
+		
+	}
 
 
 	public ListNode middleNode(ListNode head, ListNode node) {
