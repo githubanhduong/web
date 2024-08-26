@@ -14,6 +14,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,8 +29,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.likelion.web.exception.UserNotFoundException;
 import com.likelion.web.model.User;
 import com.likelion.web.service.ISecurityUserService;
-import com.likelion.web.service.JWTService;
+import com.likelion.web.service.JwtService;
 import com.likelion.web.service.UserService;
+import com.likelion.web.util.AuthRequest;
 import com.likelion.web.util.GenericResponse;
 
 import jakarta.validation.Valid;
@@ -37,13 +40,16 @@ import reactor.core.publisher.Mono;
 @Controller
 public class TokenController {
     @Autowired
-    private JWTService jwtService;
+    private JwtService jwtService;
 
     @Autowired
     UserService userService;
 
     @Autowired
-    private JavaMailSender mailSender;
+    JavaMailSender mailSender;
+
+    @Autowired
+    ReactiveAuthenticationManager authenticationManager;
 
     // @Autowired
     // private ISecurityUserService securityUserService;
@@ -109,39 +115,45 @@ public class TokenController {
     }
 
     // @GetMapping("/user/changePassword")
-    // public Mono<String> showChangePasswordPage(Locale locale, Model model, @RequestParam String token) {
-    //     String result = securityUserService.validatePasswordResetToken(token);
-    //     if (result != null) {
-    //         String message = messages.getMessage("auth.message." + result, null, locale);
-    //         return Mono.just("redirect:/login.html?lang=" + locale.getLanguage() + "&message=" + message);
-    //     } else {
-    //         model.addAttribute("token", token);
-    //         return Mono.just("redirect:/updatePassword.html?lang=" + locale.getLanguage());
-    //     }
+    // public Mono<String> showChangePasswordPage(Locale locale, Model model,
+    // @RequestParam String token) {
+    // String result = securityUserService.validatePasswordResetToken(token);
+    // if (result != null) {
+    // String message = messages.getMessage("auth.message." + result, null, locale);
+    // return Mono.just("redirect:/login.html?lang=" + locale.getLanguage() +
+    // "&message=" + message);
+    // } else {
+    // model.addAttribute("token", token);
+    // return Mono.just("redirect:/updatePassword.html?lang=" +
+    // locale.getLanguage());
+    // }
     // }
 
     // @PostMapping("/user/savePassword")
-    // public GenericResponse savePassword(final Locale locale, @Valid PasswordDto passwordDto) {
+    // public GenericResponse savePassword(final Locale locale, @Valid PasswordDto
+    // passwordDto) {
 
-    //     String result = securityUserService.validatePasswordResetToken(passwordDto.getToken());
+    // String result =
+    // securityUserService.validatePasswordResetToken(passwordDto.getToken());
 
-    //     if (result != null) {
-    //         return new GenericResponse(messages.getMessage(
-    //                 "auth.message." + result, null, locale));
-    //     }
-
-    //     @SuppressWarnings("rawtypes")
-    //     Optional user = userService.getUserByPasswordResetToken(passwordDto.getToken());
-    //     if (user.isPresent()) {
-    //         userService.changeUserPassword(user.get(), passwordDto.getNewPassword());
-    //         return new GenericResponse(messages.getMessage(
-    //                 "message.resetPasswordSuc", null, locale));
-    //     } else {
-    //         return new GenericResponse(messages.getMessage(
-    //                 "auth.message.invalid", null, locale));
-    //     }
+    // if (result != null) {
+    // return new GenericResponse(messages.getMessage(
+    // "auth.message." + result, null, locale));
     // }
-    
+
+    // @SuppressWarnings("rawtypes")
+    // Optional user =
+    // userService.getUserByPasswordResetToken(passwordDto.getToken());
+    // if (user.isPresent()) {
+    // userService.changeUserPassword(user.get(), passwordDto.getNewPassword());
+    // return new GenericResponse(messages.getMessage(
+    // "message.resetPasswordSuc", null, locale));
+    // } else {
+    // return new GenericResponse(messages.getMessage(
+    // "auth.message.invalid", null, locale));
+    // }
+    // }
+
     @GetMapping("/user/userProfile")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @ResponseBody
@@ -156,16 +168,14 @@ public class TokenController {
         return "Welcome to Admin Profile";
     }
 
-    // @PostMapping("/generateToken")
-    // public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-    //     Authentication authentication = authenticationManager.authenticate(
-    //         new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-    //     );
-    //     if (authentication.isAuthenticated()) {
-    //         return jwtService.generateToken(authRequest.getUsername());
-    //     } else {
-    //         throw new UsernameNotFoundException("Invalid user request!");
-    //     }
-    // }
-
+    @PostMapping("/generateToken")
+    @ResponseBody
+    public Mono<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()))
+            .filter(Authentication::isAuthenticated) // Only continue if authenticated
+            .flatMap(auth -> Mono.just(jwtService.generateToken(authRequest.getUsername())))
+            .switchIfEmpty(Mono.error(new UsernameNotFoundException("Invalid user request!")));
+    }
+    
 }

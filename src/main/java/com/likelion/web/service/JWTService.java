@@ -20,7 +20,7 @@ import io.jsonwebtoken.security.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JWTService {
+public class JwtService {
 
     // Replace this with a secure key in a real application, ideally fetched from
     // environment variables

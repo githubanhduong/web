@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 
 import com.likelion.web.repository.UserRepository;
 
+import lombok.NoArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Service
+@NoArgsConstructor
 public class UserDetailServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;

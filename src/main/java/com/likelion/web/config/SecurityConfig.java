@@ -15,18 +15,21 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 
 import com.likelion.web.custom.CaptureRedirectUrlFilter;
 import com.likelion.web.custom.CustomAuthenticationSuccessHandler;
+import com.likelion.web.filter.JwtAuthFilter;
 import com.likelion.web.implement.UserDetailServiceImpl;
 
 import reactor.core.publisher.Mono;
@@ -42,6 +45,9 @@ public class SecurityConfig {
 
     @Autowired
     DataSource dataSource;
+
+    // @Autowired
+    JwtAuthFilter authFilter = new JwtAuthFilter();
 
     @Bean
     ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
@@ -70,16 +76,17 @@ public class SecurityConfig {
                         .pathMatchers("/signout").permitAll()
                         .pathMatchers("/signup").permitAll()
                         .pathMatchers("/resetpassword").permitAll()
+                        .pathMatchers("/generateToken").permitAll()
                         .pathMatchers("/api/**").hasAnyRole("USER", "ADMIN")
                         .anyExchange().authenticated())
                 // .httpBasic(withDefaults())
                 .formLogin(form -> form
                         .loginPage("static/login.html")
                         // .authenticationSuccessHandler((webFilterExchange, authentication) -> {
-                        //     ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
-                        //     response.setStatusCode(HttpStatus.FOUND);
-                        //     response.getHeaders().setLocation(URI.create("/login/success"));
-                        //     return Mono.empty();
+                        // ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
+                        // response.setStatusCode(HttpStatus.FOUND);
+                        // response.getHeaders().setLocation(URI.create("/login/success"));
+                        // return Mono.empty();
                         // })
                         .authenticationSuccessHandler(authenticationSuccessHandler())
                         .authenticationFailureHandler((webFilterExchange, exception) -> {
@@ -92,10 +99,13 @@ public class SecurityConfig {
                         .logoutUrl("/perform_logout")
                         .logoutSuccessHandler((webFilterExchange, authentication) -> Mono.fromRunnable(
                                 () -> webFilterExchange.getExchange().getResponse().setStatusCode(HttpStatus.OK))))
-//              .logout()
-//                  .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/logout"))
+                // .logout()
+                // .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET,
+                // "/logout"))
                 .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions().disable());
+                .headers(headers -> headers.frameOptions().disable())
+                .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION) // Add JWT filter
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
         // .logout((logout) -> logout
         // // configures how log out is done

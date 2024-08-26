@@ -20,7 +20,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 import com.likelion.web.implement.UserDetailServiceImpl;
-import com.likelion.web.service.JWTService;
+import com.likelion.web.service.JwtService;
 
 import reactor.core.publisher.Mono;
 
@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 public class JwtAuthFilter implements WebFilter {
 
     @Autowired
-    private JWTService jwtService;
+    private JwtService jwtService;
 
     @Autowired
     private ReactiveUserDetailsService userDetailsService;
