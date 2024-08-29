@@ -9,11 +9,13 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -27,18 +29,19 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 
-import com.likelion.web.custom.CaptureRedirectUrlFilter;
-import com.likelion.web.custom.CustomAuthenticationSuccessHandler;
-import com.likelion.web.filter.JwtAuthFilter;
+// import com.likelion.web.custom.CaptureRedirectUrlFilter;
+// import com.likelion.web.custom.CustomAuthenticationSuccessHandler;
+// import com.likelion.web.filter.JwtAuthenticationManager;
 import com.likelion.web.implement.UserDetailServiceImpl;
 
 import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
+// @EnableReactiveMethodSecurity
 public class SecurityConfig {
-    @Autowired
-    CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    // @Autowired
+    // CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Autowired
     UserDetailServiceImpl userDetailsServiceImpl;
@@ -47,9 +50,10 @@ public class SecurityConfig {
     DataSource dataSource;
 
     // @Autowired
-    JwtAuthFilter authFilter = new JwtAuthFilter();
+    // JwtAuthenticationManager jwtAuthenticationManager = new JwtAuthenticationManager();
 
     @Bean
+    // @Primary
     ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
         UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
                 userDetailsService);
@@ -77,11 +81,11 @@ public class SecurityConfig {
                         .pathMatchers("/signup").permitAll()
                         .pathMatchers("/resetpassword").permitAll()
                         .pathMatchers("/generateToken").permitAll()
-                        .pathMatchers("/api/**").hasAnyRole("USER", "ADMIN")
+                        .pathMatchers("/auth/user/**").hasAnyRole("USER", "ADMIN")
                         .anyExchange().authenticated())
                 // .httpBasic(withDefaults())
                 .formLogin(form -> form
-                        .loginPage("static/login.html")
+                        .loginPage("/static/login.html") // add / before static to void infinite
                         // .authenticationSuccessHandler((webFilterExchange, authentication) -> {
                         // ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
                         // response.setStatusCode(HttpStatus.FOUND);
@@ -103,9 +107,10 @@ public class SecurityConfig {
                 // .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET,
                 // "/logout"))
                 .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions().disable())
-                .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION) // Add JWT filter
-                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
+                .headers(headers -> headers.frameOptions().disable());
+                // .authenticationManager(jwtAuthenticationManager)
+                // .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION) // Add JWT filter
+                // .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
         // .logout((logout) -> logout
         // // configures how log out is done
@@ -144,10 +149,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(11);
     }
 
-    @Bean
-    WebFilter captureRedirectUrlFilter() {
-        return new CaptureRedirectUrlFilter();
-    }
+    // @Bean
+    // WebFilter captureRedirectUrlFilter() {
+    //     return new CaptureRedirectUrlFilter();
+    // }
 
     @Bean
     ServerAuthenticationSuccessHandler authenticationSuccessHandler() {
