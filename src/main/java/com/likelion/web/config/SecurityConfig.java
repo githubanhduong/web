@@ -22,13 +22,16 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 
+import com.likelion.web.filter.JwtAuthenticationManager;
 // import com.likelion.web.custom.CaptureRedirectUrlFilter;
 // import com.likelion.web.custom.CustomAuthenticationSuccessHandler;
 // import com.likelion.web.filter.JwtAuthenticationManager;
@@ -45,21 +48,24 @@ public class SecurityConfig {
 
     @Autowired
     UserDetailServiceImpl userDetailsServiceImpl;
+    
+    @Autowired
+    ServerSecurityContextRepository securityContextRepository;
 
     @Autowired
     DataSource dataSource;
 
     // @Autowired
-    // JwtAuthenticationManager jwtAuthenticationManager = new JwtAuthenticationManager();
+    JwtAuthenticationManager jwtAuthenticationManager = new JwtAuthenticationManager();
 
-    @Bean
-    // @Primary
-    ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
-        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
-                userDetailsService);
-        authenticationManager.setPasswordEncoder(passwordEncoder());
-        return authenticationManager;
-    }
+    // @Bean
+    // // @Primary
+    // ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
+    //     UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+    //             userDetailsService);
+    //     authenticationManager.setPasswordEncoder(passwordEncoder());
+    //     return authenticationManager;
+    // }
 
     @Bean
     ReactiveUserDetailsService userDetailsService() {
@@ -81,34 +87,38 @@ public class SecurityConfig {
                         .pathMatchers("/signup").permitAll()
                         .pathMatchers("/resetpassword").permitAll()
                         .pathMatchers("/generateToken").permitAll()
-                        .pathMatchers("/auth/user/**").hasAnyRole("USER", "ADMIN")
+                        // .pathMatchers("/auth/user/**").hasAnyRole("USER", "ADMIN")
                         .anyExchange().authenticated())
                 // .httpBasic(withDefaults())
-                .formLogin(form -> form
-                        .loginPage("/static/login.html") // add / before static to void infinite
-                        // .authenticationSuccessHandler((webFilterExchange, authentication) -> {
-                        // ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
-                        // response.setStatusCode(HttpStatus.FOUND);
-                        // response.getHeaders().setLocation(URI.create("/login/success"));
-                        // return Mono.empty();
-                        // })
-                        .authenticationSuccessHandler(authenticationSuccessHandler())
-                        .authenticationFailureHandler((webFilterExchange, exception) -> {
-                            ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
-                            response.setStatusCode(HttpStatus.FOUND);
-                            response.getHeaders().setLocation(URI.create("/login/failure"));
-                            return Mono.empty();
-                        }))
-                .logout(logout -> logout
-                        .logoutUrl("/perform_logout")
-                        .logoutSuccessHandler((webFilterExchange, authentication) -> Mono.fromRunnable(
-                                () -> webFilterExchange.getExchange().getResponse().setStatusCode(HttpStatus.OK))))
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+
+                // .formLogin(form -> form
+                //         .loginPage("/static/login.html") // add / before static to void infinite
+                //         // .authenticationSuccessHandler((webFilterExchange, authentication) -> {
+                //         // ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
+                //         // response.setStatusCode(HttpStatus.FOUND);
+                //         // response.getHeaders().setLocation(URI.create("/login/success"));
+                //         // return Mono.empty();
+                //         // })
+                //         .authenticationSuccessHandler(authenticationSuccessHandler())
+                //         .authenticationFailureHandler((webFilterExchange, exception) -> {
+                //             ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
+                //             response.setStatusCode(HttpStatus.FOUND);
+                //             response.getHeaders().setLocation(URI.create("/login/failure"));
+                //             return Mono.empty();
+                //         }))
+                // .logout(logout -> logout
+                //         .logoutUrl("/perform_logout")
+                //         .logoutSuccessHandler((webFilterExchange, authentication) -> Mono.fromRunnable(
+                //                 () -> webFilterExchange.getExchange().getResponse().setStatusCode(HttpStatus.OK))))
                 // .logout()
                 // .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET,
                 // "/logout"))
                 .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions().disable());
-                // .authenticationManager(jwtAuthenticationManager)
+                // .headers(headers -> headers.frameOptions().disable())
+                .securityContextRepository(securityContextRepository)
+                .authenticationManager(jwtAuthenticationManager);
                 // .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION) // Add JWT filter
                 // .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
