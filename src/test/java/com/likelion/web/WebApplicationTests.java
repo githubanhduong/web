@@ -5,9 +5,13 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.Example;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.likelion.web.model.Department;
 import com.likelion.web.model.Physician;
@@ -17,9 +21,11 @@ import com.likelion.web.repository.ProcedureRepository;
 import com.likelion.web.service.HospitalService;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @SpringBootTest
-@TestPropertySource(locations="classpath:application-test.properties")
+@TestPropertySource(locations = "classpath:application-test.properties")
 @Slf4j
 class WebApplicationTests {
 	@Autowired
@@ -37,7 +43,7 @@ class WebApplicationTests {
 
 	@Test
 	void contextLoads() {
-		// ListNode listNode0 = new ListNode(0, new ListNode(1, 
+		// ListNode listNode0 = new ListNode(0, new ListNode(1,
 		// new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5, null))))));
 		// System.err.println(middleNode(listNode0, listNode0).val);
 	}
@@ -47,17 +53,48 @@ class WebApplicationTests {
 		System.err.println("\n" + "Start" + "\n");
 
 		// log.info(departmentRepository.findAllById(List.of(1, 2, 3)).toString());
-		// System.err.println(departmentRepository.findOne(Example.of(new Department())).toString());
+		// System.err.println(departmentRepository.findOne(Example.of(new
+		// Department())).toString());
 		procedureRepository.findAll().stream().forEach(System.err::println);
 
 		System.err.println("\n" + "End" + "\n");
 	}
 
-	@Test
-	void learnJava() {
-		
-	}
+	@Autowired
+    private WebClient.Builder webClientBuilder;
 
+	@Test
+	void testWebclient() {
+        WebClient webClient = webClientBuilder
+                .baseUrl("https://venus.aih.com.vn")
+                .build();
+
+        String requestBody = "{"
+                + "\"search\": \"\","
+                + "\"publish\": 1,"
+                + "\"hot\": 0,"
+                + "\"rowperpage\": 2,"
+                + "\"pageselected\": 1,"
+                + "\"post_type\": [\"news\"],"
+                + "\"lang\": \"vi-VN\","
+                + "\"sort\": [\"post_datepublish DESC\"]"
+                + "}";
+
+        Mono<String> responseMono = webClient.post()
+                .uri("/post/list")
+                .header("Content-Type", "application/json")
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnError(e -> log.error("Error: ", e));
+
+        StepVerifier.create(responseMono)
+                .consumeNextWith(response -> {
+                    log.info("Response: " + response);
+                    // Add assertions here to verify the response
+                })
+                .verifyComplete();
+	}
 
 	public ListNode middleNode(ListNode head, ListNode node) {
 		int count = 0;
@@ -66,11 +103,11 @@ class WebApplicationTests {
 			head = head.next;
 		}
 
-		for (int i = 0; i < count/2; i++) {
+		for (int i = 0; i < count / 2; i++) {
 			node = node.next;
 		}
 		return node;
-    }
+	}
 
 	class ListNode {
 		int val;

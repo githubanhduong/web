@@ -10,15 +10,18 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,12 +35,15 @@ import com.likelion.web.service.ISecurityUserService;
 import com.likelion.web.service.JwtService;
 import com.likelion.web.service.UserService;
 import com.likelion.web.util.AuthRequest;
+import com.likelion.web.util.AuthResponse;
 import com.likelion.web.util.GenericResponse;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Controller
+@Slf4j
 public class TokenController {
     @Autowired
     private JwtService jwtService;
@@ -60,21 +66,21 @@ public class TokenController {
     @Autowired
     private Environment env;
 
-    @PostMapping("/user/resetPassword")
-    // HttpServletRequest
-    public GenericResponse resetPassword(ServerHttpRequest request, @RequestParam("email") String userEmail) {
-        User user = userService.findUserByEmail(userEmail);
-        if (user == null) {
-            throw new UserNotFoundException();
-        }
-        String token = UUID.randomUUID().toString();
-        userService.createPasswordResetTokenForUser(user, token);
-        mailSender.send(constructResetTokenEmail(getAppUrl(request),
-                getLocaleFromRequest(request), token, user));
-        return new GenericResponse(
-                messages.getMessage("message.resetPasswordEmail", null,
-                        getLocaleFromRequest(request)));
-    }
+    // @PostMapping("/user/resetPassword")
+    // // HttpServletRequest
+    // public GenericResponse resetPassword(ServerHttpRequest request, @RequestParam("email") String userEmail) {
+    //     User user = userService.findUserByEmail(userEmail);
+    //     if (user == null) {
+    //         throw new UserNotFoundException();
+    //     }
+    //     String token = UUID.randomUUID().toString();
+    //     userService.createPasswordResetTokenForUser(user, token);
+    //     mailSender.send(constructResetTokenEmail(getAppUrl(request),
+    //             getLocaleFromRequest(request), token, user));
+    //     return new GenericResponse(
+    //             messages.getMessage("message.resetPasswordEmail", null,
+    //                     getLocaleFromRequest(request)));
+    // }
 
     private Locale getLocaleFromRequest(ServerHttpRequest request) {
         List<Locale.LanguageRange> ranges = request.getHeaders().getAcceptLanguage();
@@ -154,28 +160,41 @@ public class TokenController {
     // }
     // }
 
-    @GetMapping("/user/userProfile")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @GetMapping("/auth/user")
+    @PreAuthorize("hasRole('USER')")
     @ResponseBody
-    public String userProfile() {
-        return "Welcome to User Profile";
+    public Mono<String> userProfile() {
+        return Mono.just("Welcome to User Profile");
     }
 
     @GetMapping("/admin/adminProfile")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
-    public String adminProfile() {
-        return "Welcome to Admin Profile";
+    public Mono<String> adminProfile() {
+        return Mono.just("Welcome to Admin Profile");
     }
 
     @PostMapping("/generateToken")
     @ResponseBody
-    public Mono<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        return authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()))
-            .filter(Authentication::isAuthenticated) // Only continue if authenticated
-            .flatMap(auth -> Mono.just(jwtService.generateToken(authRequest.getUsername())))
-            .switchIfEmpty(Mono.error(new UsernameNotFoundException("Invalid user request!")));
+    public Mono<ResponseEntity<AuthResponse>> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+        BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();  
+        log.info("authRequest: {}", authRequest);
+        log.info("userDetails: {}", userService.findByUsername(authRequest.getUsername()));
+
+        return Mono.just(userService.findByUsername(authRequest.getUsername()))
+                .map(userDetails -> {
+                    log.info("Compare: {} {}", userDetails.getPassword(), authRequest.getPassword());
+                    if (bcrypt.matches(authRequest.getPassword(), userDetails.getPassword())) {
+                        log.info("token: {}", jwtService.generateToken(authRequest.getUsername()));
+                        return ResponseEntity.ok(new AuthResponse(jwtService.generateToken(authRequest.getUsername())));
+                    } else {
+                        throw new BadCredentialsException("Invalid username or password");
+                        // BadCredentialsException auto handle -> not need catch this BadCredentialsException in controllerAdvice
+                    }
+                })
+                .doOnError(err -> log.error("err: {}", err))
+                .switchIfEmpty(
+                    Mono.error(new BadCredentialsException("Invalid username or password")));
     }
     
 }

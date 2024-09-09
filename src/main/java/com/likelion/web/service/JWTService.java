@@ -10,6 +10,8 @@ import javax.crypto.SecretKey;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.likelion.web.model.User;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.lang.Function;
@@ -30,6 +32,26 @@ public class JwtService {
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName);
+    }
+
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", user.getRole());
+        return doGenerateToken(claims, user.getUsername());
+    }
+
+    private String doGenerateToken(Map<String, Object> claims, String username) {
+        Long expirationTimeLong = Long.parseLong(String.valueOf(28800)); //in second
+        final Date createdDate = new Date();
+        final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(username)
+                .issuedAt(createdDate)
+                .expiration(expirationDate)
+                .signWith(getSignKey())
+                .compact();
     }
 
     // Create a JWT token with specified claims and subject (user name)

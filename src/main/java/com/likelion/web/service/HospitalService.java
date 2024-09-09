@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.likelion.web.model.AffiliatedWith;
 import com.likelion.web.model.Department;
@@ -14,10 +15,13 @@ import com.likelion.web.repository.DepartmentRepository;
 import com.likelion.web.repository.PatientRepository;
 import com.likelion.web.repository.PhysicianRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HospitalService {
     private final PhysicianRepository physicianRepository;
     private final PatientRepository patientRepository;
@@ -25,8 +29,16 @@ public class HospitalService {
     private final AffiliatedWithRepository<AffiliatedWith> affiliatedWithRepository;
 
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
     public List<Physician> getPhysicianList() {
+        // getDepartment();
         return physicianRepository.findAll();
+    }
+
+    public Department getDepartment() {
+        Physician physician = physicianRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Author not found"));
+        log.info(physician.getDepartments().toString());
+        return physician.getDepartments().get(0);
     }
 
     @SuppressWarnings("unchecked")

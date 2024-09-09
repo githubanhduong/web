@@ -11,6 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 // import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
+import reactor.netty.http.server.HttpServer;
+
 @SpringBootApplication
 @EnableWebFlux
 @EnableScheduling
@@ -53,6 +55,9 @@ public class WebApplication {
         // kit.wallet()
         // .addCoinsSentEventListener((wallet, tx, prevBalance, newBalance) ->
         // log.info("new balance: " + newBalance.toFriendlyString()));
+        HttpServer.create()
+            .accessLog(true) // Enable access logging
+            .bindNow();
 
         SpringApplication.run(WebApplication.class, args);
     }

@@ -45,8 +45,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
         return reactiveUserDetailsService.findByUsername(username)
                 .map(userDetails -> {
                     if (jwtService.validateToken(token, userDetails)) {
-                        log.info("authentication:: {}", authentication);
-                        // Create a new fully authenticated token
+                        log.info("userDetails:: {}", userDetails);
                         return new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,

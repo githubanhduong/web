@@ -61,6 +61,12 @@ public class SecurityApiController {
         return Mono.just("Login failed. Please try again.");
     }
 
+    @PostMapping("/login/failure")
+    @ResponseBody
+    public Mono<String> loginFailure2() {
+        return Mono.just("Login failed. Please try again.");
+    }
+
     @GetMapping("/")
     public Mono<String> home(@AuthenticationPrincipal UserDetails user) {
         return Mono.just("login.html");
@@ -82,7 +88,7 @@ public class SecurityApiController {
                                                     ResponseEntity.status(HttpStatus.FOUND).headers(headers).build());
                                         }
                                     );
-                })
+                }).doOnError(e -> log.error(e.getMessage()))
                 .onErrorResume(
                         e -> Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed")));
     }

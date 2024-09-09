@@ -28,6 +28,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 
@@ -41,14 +42,14 @@ import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
-// @EnableReactiveMethodSecurity
+@EnableReactiveMethodSecurity
 public class SecurityConfig {
     // @Autowired
     // CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Autowired
     UserDetailServiceImpl userDetailsServiceImpl;
-    
+
     @Autowired
     ServerSecurityContextRepository securityContextRepository;
 
@@ -60,11 +61,14 @@ public class SecurityConfig {
 
     // @Bean
     // // @Primary
-    // ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
-    //     UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
-    //             userDetailsService);
-    //     authenticationManager.setPasswordEncoder(passwordEncoder());
-    //     return authenticationManager;
+    // ReactiveAuthenticationManager
+    // reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService)
+    // {
+    // UserDetailsRepositoryReactiveAuthenticationManager authenticationManager =
+    // new UserDetailsRepositoryReactiveAuthenticationManager(
+    // userDetailsService);
+    // authenticationManager.setPasswordEncoder(passwordEncoder());
+    // return authenticationManager;
     // }
 
     @Bean
@@ -94,24 +98,27 @@ public class SecurityConfig {
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
 
                 // .formLogin(form -> form
-                //         .loginPage("/static/login.html") // add / before static to void infinite
-                //         // .authenticationSuccessHandler((webFilterExchange, authentication) -> {
-                //         // ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
-                //         // response.setStatusCode(HttpStatus.FOUND);
-                //         // response.getHeaders().setLocation(URI.create("/login/success"));
-                //         // return Mono.empty();
-                //         // })
-                //         .authenticationSuccessHandler(authenticationSuccessHandler())
-                //         .authenticationFailureHandler((webFilterExchange, exception) -> {
-                //             ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
-                //             response.setStatusCode(HttpStatus.FOUND);
-                //             response.getHeaders().setLocation(URI.create("/login/failure"));
-                //             return Mono.empty();
-                //         }))
+                // .loginPage("/static/login.html") // add / before static to void infinite
+                // // .authenticationSuccessHandler((webFilterExchange, authentication) -> {
+                // // ServerHttpResponse response =
+                // webFilterExchange.getExchange().getResponse();
+                // // response.setStatusCode(HttpStatus.FOUND);
+                // // response.getHeaders().setLocation(URI.create("/login/success"));
+                // // return Mono.empty();
+                // // })
+                // .authenticationSuccessHandler(authenticationSuccessHandler())
+                // .authenticationFailureHandler((webFilterExchange, exception) -> {
+                // ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
+                // response.setStatusCode(HttpStatus.FOUND);
+                // response.getHeaders().setLocation(URI.create("/login/failure"));
+                // return Mono.empty();
+                // }))
                 // .logout(logout -> logout
-                //         .logoutUrl("/perform_logout")
-                //         .logoutSuccessHandler((webFilterExchange, authentication) -> Mono.fromRunnable(
-                //                 () -> webFilterExchange.getExchange().getResponse().setStatusCode(HttpStatus.OK))))
+                // .logoutUrl("/perform_logout")
+                // .logoutSuccessHandler((webFilterExchange, authentication) ->
+                // Mono.fromRunnable(
+                // () ->
+                // webFilterExchange.getExchange().getResponse().setStatusCode(HttpStatus.OK))))
                 // .logout()
                 // .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET,
                 // "/logout"))
@@ -119,8 +126,9 @@ public class SecurityConfig {
                 // .headers(headers -> headers.frameOptions().disable())
                 .securityContextRepository(securityContextRepository)
                 .authenticationManager(jwtAuthenticationManager);
-                // .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION) // Add JWT filter
-                // .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
+        // .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION) // Add JWT
+        // filter
+        // .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
         // .logout((logout) -> logout
         // // configures how log out is done
@@ -161,7 +169,7 @@ public class SecurityConfig {
 
     // @Bean
     // WebFilter captureRedirectUrlFilter() {
-    //     return new CaptureRedirectUrlFilter();
+    // return new CaptureRedirectUrlFilter();
     // }
 
     @Bean
@@ -173,6 +181,16 @@ public class SecurityConfig {
                 exchange.getResponse().getHeaders().setLocation(URI.create("/home"));
             });
         };
+    }
+
+    @Bean
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
+    }
+
+    @Bean
+    public WebClient webClient(WebClient.Builder builder) {
+        return builder.baseUrl("https://venus.aih.com.vn").build();
     }
 
 }

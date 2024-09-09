@@ -2,12 +2,19 @@ package com.likelion.web.model;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.likelion.web.Enum.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,13 +35,17 @@ public class User implements UserDetails{
 
     String password;
 
-    String role;
+    @Enumerated(EnumType.ORDINAL)
+    Role role;
 
     String email;
 
+    // public void setPassword(String password) {
+    //     this.password = new BCryptPasswordEncoder().encode(password);
+    // }    
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // TODO Auto-generated method stub
-        return new HashSet<GrantedAuthority>();
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 }
