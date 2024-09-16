@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.likelion.web.dto.UserDto;
@@ -13,17 +14,27 @@ import com.likelion.web.model.PasswordResetToken;
 import com.likelion.web.model.User;
 import com.likelion.web.model.VerificationToken;
 import com.likelion.web.repository.PasswordResetTokenRepository;
+import com.likelion.web.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class UserService implements IUserService {
 
     @Autowired
     private PasswordResetTokenRepository passwordTokenRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     public User findUserByEmail(String userEmail) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findUserByEmail'");
+        return userRepository.findByEmail(userEmail);
     }
 
     @Override
@@ -69,8 +80,15 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public void createPasswordResetTokenForUser(User user, String token) {
+        log.info("User {} \t token {}", user, token);
+        passwordTokenRepository.deleteByUser(user);
+        passwordTokenRepository.flush(); // Force a flush
+
+
         PasswordResetToken myToken = new PasswordResetToken(token, user);
+
         passwordTokenRepository.save(myToken);
     }
 
@@ -82,8 +100,7 @@ public class UserService implements IUserService {
 
     @Override
     public Optional<User> getUserByPasswordResetToken(String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserByPasswordResetToken'");
+        return Optional.ofNullable(passwordTokenRepository.findByToken(token) .getUser());
     }
 
     @Override
@@ -94,8 +111,8 @@ public class UserService implements IUserService {
 
     @Override
     public void changeUserPassword(User user, String password) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'changeUserPassword'");
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
     }
 
     @Override

@@ -25,7 +25,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 
-import com.likelion.web.custom.CaptureRedirectUrlFilter;
+// import com.likelion.web.custom.CaptureRedirectUrlFilter;
 import com.likelion.web.custom.CustomAuthenticationSuccessHandler;
 import com.likelion.web.implement.UserDetailServiceImpl;
 
@@ -69,12 +69,13 @@ public class SecurityConfig {
                         .pathMatchers("/login/**").permitAll()
                         .pathMatchers("/signout").permitAll()
                         .pathMatchers("/signup").permitAll()
-                        .pathMatchers("/resetpassword").permitAll()
+                        .pathMatchers("/user/resetPassword").permitAll()
+                        .pathMatchers("/user/savePassword", "/user/changePassword", "/static/updatePassword.html").authenticated()
                         .pathMatchers("/api/**").hasAnyRole("USER", "ADMIN")
                         .anyExchange().authenticated())
                 // .httpBasic(withDefaults())
                 .formLogin(form -> form
-                        .loginPage("static/login.html")
+                        .loginPage("/static/login.html")
                         // .authenticationSuccessHandler((webFilterExchange, authentication) -> {
                         //     ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
                         //     response.setStatusCode(HttpStatus.FOUND);
@@ -134,10 +135,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(11);
     }
 
-    @Bean
-    WebFilter captureRedirectUrlFilter() {
-        return new CaptureRedirectUrlFilter();
-    }
+    // @Bean
+    // WebFilter captureRedirectUrlFilter() {
+    //     return new CaptureRedirectUrlFilter();
+    // }
 
     @Bean
     ServerAuthenticationSuccessHandler authenticationSuccessHandler() {

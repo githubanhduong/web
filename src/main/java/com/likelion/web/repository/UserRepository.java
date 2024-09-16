@@ -8,5 +8,7 @@ import com.likelion.web.model.User;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     UserDetails findByUsername(String username);
+    
+    User findByEmail(String email);
 
 }
