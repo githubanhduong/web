@@ -7,6 +7,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.serializer.GenericToStringSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 // import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.web.reactive.config.EnableWebFlux;
@@ -65,9 +74,31 @@ public class WebApplication {
         };
     }
 
+    @Bean
+    ReactiveRedisTemplate<String, Long> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+        JdkSerializationRedisSerializer jdkSerializationRedisSerializer = new JdkSerializationRedisSerializer();
+        StringRedisSerializer stringRedisSerializer = StringRedisSerializer.UTF_8;
+        GenericToStringSerializer<Long> longToStringSerializer = new GenericToStringSerializer<>(Long.class);
+        ReactiveRedisTemplate<String, Long> template = new ReactiveRedisTemplate<>(factory,
+                RedisSerializationContext.<String, Long>newSerializationContext(jdkSerializationRedisSerializer)
+                        .key(stringRedisSerializer).value(longToStringSerializer).build());
+        return template;
+    }
+
+    @Bean
+    @Primary
+    ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName("redis-19136.c334.asia-southeast2-1.gce.redns.redis-cloud.com");
+        config.setPort(19136);
+        config.setPassword("qvyE3XCt0y0aSOAKJHBSNhrVHNWhBhV4");
+
+        return new LettuceConnectionFactory(config);
+    }
+
     // @Bean
     // ApplicationRunner applicationRunner(JobLauncher jobLauncher, Job job) {
-    //     return args -> jobLauncher.run(job, new JobParameters());
+    // return args -> jobLauncher.run(job, new JobParameters());
     // }
 
 }
